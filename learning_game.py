@@ -3,10 +3,11 @@ import pygame
 from pygame.locals import QUIT
 from numpy import ones,vstack
 from numpy.linalg import lstsq
+import utils
 
-SCREEN_SIZE = 600
+SCREEN_SIZE = 300
 SURFACE = 10
-TOTAL_CLICKS = 3
+SAMPLE_NUMBER = 3
 
 COEF_A = 1 #random.randint(0, 2)
 COEF_B = 0 #random.randint(0, 30)
@@ -64,20 +65,32 @@ def draw_line(pos1, pos2):
 
 
 pygame.init()
-screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
+screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE + 100))
+
+
 pygame.display.set_caption('Learning Game')
+
+screen.fill((0, 0, 0))
+
+#drawing split line from playing screen and buttons
+for i in range(int(SCREEN_SIZE/5)):
+    pygame.draw.rect(screen, (255, 200, 100), (i*10 ,SCREEN_SIZE+10, 5, 5))
+
+pygame.display.update()
 
 
 objectsRect = []
 clickedObj = []
-amount = 100
+AMOUNT = 100
 
-for i in range(0, amount):
-    x,y = on_grid_random()
-    objectsRect.append(pygame.draw.rect(screen, (255, 255, 255), (x,y, 10, 10)))
+for i in range(0, AMOUNT):
+    x, y = on_grid_random()
+    objectsRect.append(pygame.draw.rect(screen, (255, 255, 255), (x, y, 10, 10)))
     clickedObj.append(0)
 
-screen.fill((0, 0, 0))
+GreenButton = utils.button((0,255,0), 10, SCREEN_SIZE+25, 100, 50, 'Solve')
+GreenButton.draw(screen, (0,0,0))
+
 
 pygame.display.update()
 
@@ -87,9 +100,13 @@ mouse_pos_line1 = 0
 mouse_pos_line2 = 0
 
 clock = pygame.time.Clock()
+def redrawWindow():
+    screen.fill((0,0,0))
+    GreenButton.draw(screen, (0,0,0))
 
 while True:
     clock.tick(20)
+    # redrawWindow()
     pressed1, pressed2, pressed3 = pygame.mouse.get_pressed()
 
     for event in pygame.event.get():
@@ -98,31 +115,34 @@ while True:
             pygame.quit()
         
         elif event.type == pygame.MOUSEMOTION:
-            if pressed1 and sum(clickedObj) == TOTAL_CLICKS:
+            if pressed1 and sum(clickedObj) == SAMPLE_NUMBER:
                 last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
-                pygame.draw.line(screen, (100,100,0), last, event.pos, 1)
-                
+                pygame.draw.line(screen, (100,100,0), last, event.pos, 10)
+            if GreenButton.isOver(mouse_pos):
+                GreenButton.color = [0,170,0]
+            else :
+                GreenButton.color = [0,255,0]
 
 
-    
-    
+            
 
-    for i in range(len(objectsRect)):
-        if objectsRect[i].collidepoint(mouse_pos) and pressed1 and clickedObj[i] == 0:
-            color_point(objectsRect[i])
-            clickedObj[i] = 1
-            print('clicou') 
-        elif clickedObj[i] > 0 :
-            color_point(objectsRect[i])
-        elif sum(clickedObj) < TOTAL_CLICKS : 
-            pygame.draw.rect(screen, (255, 255, 255), (objectsRect[i].left, objectsRect[i].top, 10, 10))
-        elif sum(clickedObj) == TOTAL_CLICKS :
-            pygame.draw.rect(screen, (150, 150, 150), (objectsRect[i].left, objectsRect[i].top, 10, 10))
+        
+        
         else :
-            color_point(objectsRect[i])
+            for i in range(len(objectsRect)):
+                if objectsRect[i].collidepoint(mouse_pos) and pressed1 and clickedObj[i] == 0:
+                    color_point(objectsRect[i])
+                    clickedObj[i] = 1
+                    print('clicou') 
+                elif clickedObj[i] > 0 :
+                    color_point(objectsRect[i])
+                # elif sum(clickedObj) < SAMPLE_NUMBER : 
+                #     pygame.draw.rect(screen, (255, 255, 255), (objectsRect[i].left, objectsRect[i].top, 10, 10))
+                # else :
+                #     color_point(objectsRect[i])
     
     # for i in range(len(objectsRect)):
-    #     if sum(clickedObj) + 1 == TOTAL_CLICKS and ~objectsRect[i].collidepoint(mouse_pos):
+    #     if sum(clickedObj) + 1 == SAMPLE_NUMBER and ~objectsRect[i].collidepoint(mouse_pos):
     #         if pressed1 and mouse_pos_line_count == 0:
     #             mouse_pos_line1 = mouse_pos
     #             mouse_pos_line_count = mouse_pos_line_count + 1

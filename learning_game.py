@@ -1,9 +1,8 @@
 import random
 import pygame
 from pygame.locals import QUIT
-from numpy import ones,vstack
-from numpy.linalg import lstsq
 import utils
+import numpy as np
 
 SCREEN_SIZE = 300
 SURFACE = 10
@@ -56,7 +55,7 @@ screen.fill((0, 0, 0))
 
 #drawing split line from playing screen and buttons
 for i in range(int(SCREEN_SIZE/5)):
-    pygame.draw.rect(screen, (255, 200, 100), (i*10 ,SCREEN_SIZE+10, 5, 5))
+    pygame.draw.rect(screen, (255, 200, 100), (i*10 ,SCREEN_SIZE+15, 5, 5))
 
 pygame.display.update()
 
@@ -65,15 +64,29 @@ objectsRect = []
 clickedObj = []
 AMOUNT = 100
 
+SolveButton = utils.button((0,255,0), 10, SCREEN_SIZE+25, 120, 50, 'Solve')
+SolveButton.draw(screen, (0,0,0))
+SolveButtonEstate = 0
+
+GuessButton = utils.button((100,50,100), 170, SCREEN_SIZE+25, 120, 50, 'Guess')
+GuessButton.draw(screen, (0,0,0))
+GuessButtonEstate = 0
+
+PointsTrueValue = []
+PaintedPoints = []
+GuessedPoints = []
+
 for i in range(0, AMOUNT):
     x, y = on_grid_random()
     objectsRect.append(pygame.draw.rect(screen, (255, 255, 255), (x, y, 10, 10)))
+    
+    if x*COEF_A + COEF_B <= y:
+        PointsTrueValue.append(1)
+    else:
+        PointsTrueValue.append(0)
     clickedObj.append(0)
+    GuessedPoints.append(0)
 
-SolveButton = utils.button((0,255,0), 10, SCREEN_SIZE+25, 120, 50, 'Solve')
-SolveButton.draw(screen, (0,0,0))
-GuessButton = utils.button((100,50,100), 170, SCREEN_SIZE+25, 120, 50, 'Guess')
-GuessButton.draw(screen, (0,0,0))
 
 
 pygame.display.update()
@@ -90,7 +103,26 @@ def redrawWindow():
 
 while True:
     clock.tick(20)
-    # redrawWindow()
+    
+    if SolveButtonEstate == 0:
+        if GuessButtonEstate == 0:
+            GuessButton.color = [100,50,100]
+            GuessButton.draw(screen, (0,0,0))
+        else:
+            GuessButton.color = [200,100,200]
+            GuessButton.draw(screen, (0,0,0))
+    else:
+        for i in range(len(objectsRect)):
+            for j in range(len(PaintedPoints)):
+                    if objectsRect[i].collidepoint(PaintedPoints[j]):
+                        GuessedPoints[i] = 1
+        
+        score = len([i for i, j in zip(GuessedPoints, PointsTrueValue) if i == j]) / len(GuessedPoints)
+        
+        ScoreBanner = utils.button((255,255,235), 10, SCREEN_SIZE+25, 280, 50, 'Acc {}'.format(score))
+        ScoreBanner.draw(screen, (0,0,0))
+
+
     pressed1, pressed2, pressed3 = pygame.mouse.get_pressed()
 
     for event in pygame.event.get():
@@ -100,34 +132,39 @@ while True:
         
 
         elif event.type == pygame.MOUSEMOTION:
-            # if pressed1 and sum(clickedObj) == SAMPLE_NUMBER:
-            #     last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
-            #     pygame.draw.line(screen, (100,100,0), last, event.pos, 10)
-            if SolveButton.isOver(mouse_pos):
-                SolveButton.color = [0,170,0]
-                SolveButton.draw(screen, (0,0,0))
-            if GuessButton.isOver(mouse_pos):
-                GuessButton.color = [100,0,100]
-                GuessButton.draw(screen, (0,0,0))
-            else :
-                SolveButton.color = [0,255,0]
-                SolveButton.draw(screen, (0,0,0))
-                GuessButton.color = [100,50,100]
-                GuessButton.draw(screen, (0,0,0))
+            if pressed1 and GuessButtonEstate == 1 and mouse_pos[1] < SCREEN_SIZE:
+                last = (event.pos[0]-event.rel[0], event.pos[1]-event.rel[1])
+                PaintedPoints.append((last[0],last[1]))
+                PaintedPoints.append((last[0]+10,last[1]+10))
+                PaintedPoints.append((last[0]+10,last[1]-10))
+                PaintedPoints.append((last[0]-10,last[1]+10))
+                PaintedPoints.append((last[0]-10,last[1]-10))
+
+                pygame.draw.line(screen, (170,0,10), last, event.pos, 30)
+
+                
         
 
         elif pressed1:
-            if SolveButton.isOver(mouse_pos) and pressed1:
+            if SolveButton.isOver(mouse_pos):
                 SolveButton.color = [0,120,0]
                 SolveButton.draw(screen, (0,0,0))
                 clickedObj = points_reveal()
-            else: 
+                SolveButtonEstate = 1
+
+
+            elif GuessButton.isOver(mouse_pos):
+                GuessButtonEstate = abs(GuessButtonEstate - 1)
+                
+            else:
                 for i in range(len(objectsRect)):
-                    if objectsRect[i].collidepoint(mouse_pos) and pressed1:
+                    if objectsRect[i].collidepoint(mouse_pos) and GuessButtonEstate == 0:
                         clickedObj[i] = 1
         
         for i in range(len(objectsRect)):
             color_point(objectsRect[i],clickedObj[i])
+
+        
                         
 
 

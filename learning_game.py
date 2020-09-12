@@ -2,7 +2,6 @@ import random
 import pygame
 from pygame.locals import QUIT
 import utils
-import numpy as np
 
 SCREEN_SIZE = 300
 SURFACE = 10
@@ -11,54 +10,6 @@ SAMPLE_NUMBER = 4
 COEF_A = random.random()*4
 COEF_B = random.randint(0, 20)
 SIDE = random.random()
-
-def on_grid_random():
-    """
-    create random coordenates
-    """
-    x = random.randint(0, SCREEN_SIZE - SURFACE)
-    y = random.randint(0, SCREEN_SIZE - SURFACE)
-    return (x//10*10, y//10*10)
-
-
-
-def color_point(rec, revealed):
-    """
-    create colorful point
-    """
-    if SIDE < 0.5:
-        if revealed == 1:
-            if rec.left*COEF_A + COEF_B <= rec.top:
-                r = 255
-                g = 0
-                b = 0
-            else:
-                r = 0
-                g = 255
-                b = 255
-            return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
-        else:
-            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
-    else:
-        if revealed == 1:
-            if rec.left*COEF_A + COEF_B >= rec.top:
-                r = 255
-                g = 0
-                b = 0
-            else:
-                r = 0
-                g = 255
-                b = 255
-            return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
-        else:
-            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
-
-
-def points_reveal():
-    global clickedObj
-    clickedObj = [1 for x in clickedObj]
-    return clickedObj
-
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE + 100))
@@ -92,7 +43,7 @@ PaintedPoints = []
 GuessedPoints = []
 
 for i in range(0, AMOUNT):
-    x, y = on_grid_random()
+    x, y = utils.on_grid_random(SCREEN_SIZE = SCREEN_SIZE, SURFACE = SURFACE)
     objectsRect.append(pygame.draw.rect(screen, (255, 255, 255), (x, y, 10, 10)))
     
     if SIDE < 0.5:
@@ -135,8 +86,8 @@ while True:
     else:
         for i in range(len(objectsRect)):
             for j in range(len(PaintedPoints)):
-                    if objectsRect[i].collidepoint(PaintedPoints[j]):
-                        GuessedPoints[i] = 1
+                if objectsRect[i].collidepoint(PaintedPoints[j]):
+                    GuessedPoints[i] = 1
         
         score = len([i for i, j in zip(GuessedPoints, PointsTrueValue) if i == j]) / len(GuessedPoints)
         
@@ -170,7 +121,7 @@ while True:
             if SolveButton.isOver(mouse_pos):
                 SolveButton.color = [0,120,0]
                 SolveButton.draw(screen, (0,0,0))
-                clickedObj = points_reveal()
+                clickedObj = utils.points_reveal(clickedObj)
                 SolveButtonEstate = 1
 
 
@@ -183,7 +134,7 @@ while True:
                         clickedObj[i] = 1
         
         for i in range(len(objectsRect)):
-            color_point(objectsRect[i],clickedObj[i])
+            utils.color_point(objectsRect[i],clickedObj[i], COEF_A = COEF_A, COEF_B = COEF_B, SIDE = SIDE, screen = screen)
 
         
                         

@@ -1,5 +1,7 @@
 
 import pygame
+import random
+
 
 
 class button():
@@ -32,3 +34,49 @@ class button():
                 return True
             
         return False
+
+def on_grid_random(SCREEN_SIZE,SURFACE):
+    """
+    create random coordenates
+    """
+    x = random.randint(0, SCREEN_SIZE - SURFACE)
+    y = random.randint(0, SCREEN_SIZE - SURFACE)
+    return (x//10*10, y//10*10)
+
+
+
+def color_point(rec, revealed, COEF_A, COEF_B, SIDE, screen):
+    """
+    create colorful point
+    """
+    if SIDE < 0.5:
+        if revealed == 1:
+            if rec.left*COEF_A + COEF_B <= rec.top:
+                r = 255
+                g = 0
+                b = 0
+            else:
+                r = 0
+                g = 255
+                b = 255
+            return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
+        else:
+            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
+    else:
+        if revealed == 1:
+            if rec.left*COEF_A + COEF_B >= rec.top:
+                r = 255
+                g = 0
+                b = 0
+            else:
+                r = 0
+                g = 255
+                b = 255
+            return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
+        else:
+            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
+
+
+def points_reveal(clickedObj):
+    clickedObj = [1 for x in clickedObj]
+    return clickedObj

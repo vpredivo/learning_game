@@ -7,13 +7,14 @@ import random
 class button():
     
     
-    def __init__(self, color, x,y,width,height, text=''):
+    def __init__(self, color, x, y, width, height, text='', estate = 0):
         self.color = color
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.text = text
+        self.estate = estate
 
     def draw(self,win,outline=None):
         #Call this method to draw the button on the screen
@@ -34,6 +35,10 @@ class button():
                 return True
             
         return False
+
+    def changeEstate(self):
+        self.estate = abs(self.estate - 1)
+        return
 
 def on_grid_random(SCREEN_SIZE,SURFACE):
     """

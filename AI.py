@@ -27,40 +27,41 @@ class AI():
         
         self.clf.fit(df_train[FEATURES], df_train['y'])
 
-        x = self.clf.predict(df[FEATURES])
-        
-        return x
-
-    
+        return self.clf.predict(df[FEATURES])
 
 
 
-COEF_A = random.random()*4
-COEF_B = random.randint(0, 20)
-SIDE = random.random()
 
-clickedObj = []
+# COEF_A = random.random()*4
+# COEF_B = random.randint(0, 20)
+# SIDE = random.random()
 
-PointsTrueValue = []
-PaintedPoints = []
+# clickedObj = []
 
-for i in range(0, 100):
-    x, y = utils.on_grid_random(SCREEN_SIZE = 300, SURFACE = 10)
-    
-    if SIDE < 0.5:
-        if x*COEF_A + COEF_B <= y:
-            PointsTrueValue.append(1)
-        else:
-            PointsTrueValue.append(0)
-    else:
-        if x*COEF_A + COEF_B >= y:
-            PointsTrueValue.append(1)
-        else:
-            PointsTrueValue.append(0)
-    if random.random() < 0.2:
-        clickedObj.append(1)
-    else :
-        clickedObj.append(0)
+# PointsTrueValue = []
+# PaintedPoints = []
 
-AI = AI()
-print(AI.fit_predict(x_dim = x, y_dim = y, real_value = PointsTrueValue, known_data = clickedObj))
+# x = []
+# y = []
+# for i in range(0, 100):
+#     x1, y1 = utils.on_grid_random(SCREEN_SIZE = 300, SURFACE = 10)
+#     x.append(x1)
+#     y.append(y1)
+
+#     if SIDE < 0.5:
+#         if x1*COEF_A + COEF_B <= y1:
+#             PointsTrueValue.append(1)
+#         else:
+#             PointsTrueValue.append(0)
+#     else:
+#         if x1*COEF_A + COEF_B >= y1:
+#             PointsTrueValue.append(1)
+#         else:
+#             PointsTrueValue.append(0)
+#     if random.random() < 0.2:
+#         clickedObj.append(1)
+#     else :
+#         clickedObj.append(0)
+
+# AI = AI()
+# print(AI.fit_predict(x_dim = x, y_dim = y, real_value = PointsTrueValue, known_data = clickedObj))

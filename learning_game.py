@@ -51,7 +51,7 @@ y_pos = []
 
 for i in range(0, AMOUNT):
     x, y = utils.on_grid_random(SCREEN_SIZE = SCREEN_SIZE, SURFACE = SURFACE)
-    objectsRect.append(pygame.draw.rect(screen, (255, 255, 255), (x, y, 10, 10)))
+    objectsRect.append(pygame.draw.rect(screen, (100, 100, 100), (x, y, 10, 10)))
     x_pos.append(x)
     y_pos.append(y)
 
@@ -162,8 +162,9 @@ while True:
             pygame.time.wait(1000)
         else:
             GuessedPoints = Machine.fit_predict(x_dim = x_pos, y_dim = y_pos, real_value = PointsTrueValue, known_data = clickedObj)
-            print(GuessedPoints)
-             
+            for i in range(AMOUNT):
+                if GuessedPoints[i] == 1:
+                    pygame.draw.line(screen, (170,0,10), (x_pos[i]-10,y_pos[i]), (x_pos[i]+10,y_pos[i]), 30)
             print('ACABOU')
             AIButton.changeEstate()
     

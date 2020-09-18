@@ -66,7 +66,7 @@ def color_point(rec, revealed, COEF_A, COEF_B, SIDE, screen):
                 b = 255
             return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
         else:
-            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
+            return pygame.draw.rect(screen, (100, 100, 100), (rec.left, rec.top, 10, 10))
     else:
         if revealed == 1:
             if rec.left*COEF_A + COEF_B >= rec.top:
@@ -79,7 +79,7 @@ def color_point(rec, revealed, COEF_A, COEF_B, SIDE, screen):
                 b = 255
             return pygame.draw.rect(screen, (r, g, b), (rec.left, rec.top, 10, 10))
         else:
-            return pygame.draw.rect(screen, (255, 255, 255), (rec.left, rec.top, 10, 10))
+            return pygame.draw.rect(screen, (100, 100, 100), (rec.left, rec.top, 10, 10))
 
 
 def points_reveal(clickedObj):

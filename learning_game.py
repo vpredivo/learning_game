@@ -173,10 +173,8 @@ while True:
 
             X_pool = X_raw[np.where(np.asarray(clickedObj) == 0)]
             y_pool = y_raw[np.where(np.asarray(clickedObj) == 0)]
-            index = 0
-        elif sum(clickedObj) <= SAMPLE_NUMBER:
-            
             Machine.fit(X_train, y_train)
+        elif sum(clickedObj) <= SAMPLE_NUMBER:
         
             query_index, query_instance = Machine.query(X_pool)
             
@@ -191,7 +189,6 @@ while True:
             # Remove the queried instance from the unlabeled pool.
             X_pool, y_pool = np.delete(X_pool, query_index, axis=0), np.delete(y_pool, query_index)
 
-            index = index + 1
 
             pygame.time.wait(1000)
         else:

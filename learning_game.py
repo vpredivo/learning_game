@@ -1,8 +1,13 @@
 import random
 import pygame
 from pygame.locals import QUIT
+import numpy as np
 import utils
 import AI 
+
+from modAL.models import ActiveLearner
+from modAL.uncertainty import uncertainty_sampling
+from sklearn.tree import DecisionTreeClassifier
 
 SCREEN_SIZE = 300
 SURFACE = 10
@@ -68,6 +73,13 @@ for i in range(0, AMOUNT):
     clickedObj.append(0)
     GuessedPoints.append(0)
 
+X_raw = np.stack((x_pos,y_pos), axis = 1)
+y_raw = np.asarray(PointsTrueValue)
+
+Machine =  ActiveLearner(
+                                estimator=DecisionTreeClassifier(random_state=0),
+                                query_strategy=uncertainty_sampling
+                                )
 
 
 pygame.display.update()
@@ -151,26 +163,48 @@ while True:
             
 
     else: #AI playing
-        Machine = AI.AI()
         if sum(clickedObj) == 0:
             rand = random.randint(0, AMOUNT-2)
             clickedObj[rand] = 1
             clickedObj[rand + 1] = 1
+
+            X_train = X_raw[np.where(np.asarray(clickedObj) == 1)]
+            y_train = y_raw[np.where(np.asarray(clickedObj) == 1)]
+
+            X_pool = X_raw[np.where(np.asarray(clickedObj) == 0)]
+            y_pool = y_raw[np.where(np.asarray(clickedObj) == 0)]
+            index = 0
         elif sum(clickedObj) <= SAMPLE_NUMBER:
-            rand = random.randint(0, AMOUNT-2)
-            clickedObj[rand] = 1
+            
+            Machine.fit(X_train, y_train)
+        
+            query_index, query_instance = Machine.query(X_pool)
+            
+            for i in range(len(clickedObj)):
+                if (x_pos[i] == query_instance[0][0]) & (y_pos[i] == query_instance[0][1]):
+                    clickedObj[i] = 1
+
+            # Teach our ActiveLearner model the record it has requested.
+            X, y = X_pool[query_index].reshape(1, -1), y_pool[query_index].reshape(1, )
+            Machine.teach(X=X, y=y)
+
+            # Remove the queried instance from the unlabeled pool.
+            X_pool, y_pool = np.delete(X_pool, query_index, axis=0), np.delete(y_pool, query_index)
+
+            index = index + 1
+
             pygame.time.wait(1000)
         else:
-            GuessedPoints = Machine.fit_predict(x_dim = x_pos, y_dim = y_pos, real_value = PointsTrueValue, known_data = clickedObj)
+            GuessedPoints = Machine.predict(X_raw)
             for i in range(AMOUNT):
                 if GuessedPoints[i] == 1:
-                    pygame.draw.line(screen, (170,0,10), (x_pos[i]-10,y_pos[i]), (x_pos[i]+10,y_pos[i]), 30)
+                    pygame.draw.line(screen, (170,0,10), (x_pos[i],y_pos[i]), (x_pos[i]+10,y_pos[i]+10), 30)
             print('ACABOU')
             AIButton.changeEstate()
     
     
     for i in range(len(objectsRect)):
-                utils.color_point(objectsRect[i],clickedObj[i], COEF_A = COEF_A, COEF_B = COEF_B, SIDE = SIDE, screen = screen)            
+        utils.color_point(objectsRect[i],clickedObj[i], COEF_A = COEF_A, COEF_B = COEF_B, SIDE = SIDE, screen = screen)            
 
 
     pygame.display.update()
